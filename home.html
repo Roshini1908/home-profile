@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOURNYX — Compete. Rise. Dominate.</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #060810;
+    --bg-card: #101525;
+    --purple: #a855f7;
+    --purple-bright: #c084fc;
+    --magenta: #e040fb;
+    --cyan: #22d3ee;
+    --border: rgba(168,85,247,0.25);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --green: #4ade80;
+    --red: #f87171;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(6,8,16,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 60px;
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, var(--purple-bright), var(--magenta));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    cursor: pointer;
+  }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    text-decoration: none; font-size: 0.85rem; letter-spacing: 0.12em;
+    font-weight: 600; color: var(--text-muted); text-transform: uppercase; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.active { color: var(--purple-bright); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--purple), var(--magenta));
+    color: #fff; border: none; padding: 8px 22px;
+    font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.12em; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* Mobile menu button (hidden on desktop) */
+  .nav-menu-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 38px; height: 38px;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    margin-left: 12px;
+  }
+  .nav-menu-btn svg { width: 18px; height: 18px; }
+
+  /* Mobile dropdown nav panel */
+  .mobile-nav {
+    position: fixed;
+    top: 60px; left: 0; right: 0;
+    z-index: 99;
+    background: rgba(6,8,16,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+  }
+  .mobile-nav.open { max-height: 280px; }
+  .mobile-nav a {
+    padding: 16px 24px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .mobile-nav a:last-child { border-bottom: none; }
+  .mobile-nav a.active { color: var(--purple-bright); }
+
+  .hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1; padding: 80px 24px 40px;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(168,85,247,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { display: flex; align-items: center; gap: 80px; max-width: 1160px; width: 100%; }
+  .hero-copy { flex: 1; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--cyan); font-weight: 600; margin-bottom: 20px;
+  }
+  .hero-eyebrow span.dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .hero-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.05; letter-spacing: 0.02em; margin-bottom: 8px;
+  }
+  .hero-title span {
+    background: linear-gradient(90deg, var(--purple-bright) 20%, var(--magenta) 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-sub {
+    font-size: 1.1rem; color: var(--text-muted); font-weight: 300;
+    margin-bottom: 36px; line-height: 1.6; max-width: 420px;
+  }
+  .hero-stats { display: flex; gap: 32px; margin-bottom: 40px; }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-val { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 700; color: var(--purple-bright); }
+  .stat-label { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
+  .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+    border: 1px solid var(--border); background: rgba(168,85,247,0.06);
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 600;
+  }
+  .badge .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  /* LOGIN CARD */
+  .login-card {
+    flex: 0 0 380px; background: var(--bg-card);
+    border: 1px solid var(--border); padding: 40px 36px; position: relative;
+    box-shadow: 0 0 60px rgba(168,85,247,0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .login-card::before, .login-card::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    border-color: var(--purple); border-style: solid;
+  }
+  .login-card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .login-card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+  .card-header { text-align: center; margin-bottom: 32px; }
+  .card-logo {
+    font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight: 900;
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, var(--purple-bright), var(--magenta));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 4px;
+  }
+  .card-sub { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .tab-row { display: flex; border: 1px solid var(--border); margin-bottom: 28px; overflow: hidden; }
+  .tab {
+    flex: 1; padding: 10px;
+    font-family: 'Orbitron', monospace; font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    background: transparent; border: none; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .tab.active { background: linear-gradient(135deg, var(--purple), var(--magenta)); color: #fff; }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 600; margin-bottom: 8px;
+  }
+  .field-wrap { position: relative; }
+  .field-wrap svg {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--text-muted); pointer-events: none;
+  }
+  .field input {
+    width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 14px 12px 40px;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field input::placeholder { color: rgba(148,163,184,0.4); }
+  .field input:focus { border-color: var(--purple); box-shadow: 0 0 0 2px rgba(168,85,247,0.15); }
+  .field input.error { border-color: var(--red); box-shadow: 0 0 0 2px rgba(248,113,113,0.15); }
+
+  /* Validation error message */
+  .err-msg {
+    display: none; font-size: 0.72rem; color: var(--red);
+    letter-spacing: 0.06em; margin-top: 6px; padding-left: 2px;
+  }
+  .err-msg.show { display: block; }
+
+  .field-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .check-label { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-muted); cursor: pointer; }
+  .check-label input[type="checkbox"] { accent-color: var(--purple); width: 14px; height: 14px; cursor: pointer; }
+  .forgot { font-size: 0.75rem; color: var(--purple-bright); text-decoration: none; letter-spacing: 0.06em; transition: color 0.2s; }
+  .forgot:hover { color: var(--magenta); }
+  .btn-login {
+    width: 100%; background: linear-gradient(135deg, var(--purple), var(--magenta));
+    border: none; color: #fff; padding: 14px;
+    font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer;
+    position: relative; overflow: hidden; transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-login:hover { opacity: 0.9; }
+  .btn-login:active { transform: scale(0.99); }
+  .btn-login::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+    transform: translateX(-100%); transition: transform 0.5s;
+  }
+  .btn-login:hover::after { transform: translateX(100%); }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .divider span { font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .social-row { display: flex; gap: 10px; }
+  .social-btn {
+    flex: 1; padding: 10px; background: transparent; border: 1px solid var(--border);
+    color: var(--text-muted); font-family: 'Rajdhani', sans-serif; font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.06em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .social-btn:hover { border-color: var(--purple); color: var(--text); }
+  .card-footer { text-align: center; margin-top: 20px; font-size: 0.78rem; color: var(--text-muted); }
+  .card-footer a { color: var(--purple-bright); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+  .card-footer a:hover { color: var(--magenta); }
+
+  /* Toast notification */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 14px 28px; font-size: 0.85rem; letter-spacing: 0.06em;
+    color: var(--text); z-index: 999; transition: transform 0.3s ease;
+    box-shadow: 0 0 30px rgba(168,85,247,0.2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); }
+  .toast.fail    { border-color: var(--red); }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .toast.success .toast-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .toast.fail    .toast-dot { background: var(--red);   box-shadow: 0 0 8px var(--red); }
+
+  /* Games bar */
+  .games-bar { position: relative; z-index: 1; padding: 0 48px 80px; }
+  .section-label { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 20px; }
+  .games-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .games-strip::-webkit-scrollbar { display: none; }
+  .game-pill {
+    flex-shrink: 0; padding: 10px 22px; border: 1px solid var(--border); background: var(--bg-card);
+    font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .game-pill:hover, .game-pill.active {
+    border-color: var(--purple); color: var(--purple-bright);
+    background: rgba(168,85,247,0.08); box-shadow: 0 0 16px rgba(168,85,247,0.15);
+  }
+
+  .form-signup { display: none; }
+  .form-login  { display: block; }
+
+  /* ===== PROFILE VIEW (merged in-page) ===== */
+  .profile-view { display: none; }
+  .profile-view.active { display: block; }
+  .home-view.hidden { display: none; }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 1000px; margin: 0 auto;
+    padding: 110px 24px 80px;
+  }
+  .page-eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--cyan); font-weight: 600; margin-bottom: 8px;
+  }
+  .page-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: 0.02em; margin-bottom: 36px;
+  }
+  .profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 36px;
+    position: relative;
+    box-shadow: 0 0 60px rgba(168,85,247,0.10), inset 0 1px 0 rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .profile-card::before, .profile-card::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    border-color: var(--purple); border-style: solid;
+  }
+  .profile-card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .profile-card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+  .avatar {
+    flex-shrink: 0;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--magenta));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace; font-weight: 900; font-size: 2.2rem;
+    color: #fff;
+    border: 3px solid rgba(255,255,255,0.08);
+    box-shadow: 0 0 30px rgba(168,85,247,0.35);
+  }
+  .profile-id { flex: 1; min-width: 200px; }
+  .profile-name {
+    font-family: 'Orbitron', monospace; font-weight: 700;
+    font-size: 1.5rem; letter-spacing: 0.02em; margin-bottom: 6px;
+  }
+  .profile-tag {
+    font-size: 0.85rem; color: var(--purple-bright); font-weight: 600;
+    letter-spacing: 0.04em; margin-bottom: 10px;
+  }
+  .profile-rank {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border: 1px solid var(--border);
+    background: rgba(168,85,247,0.08);
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 600;
+  }
+  .profile-rank .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .edit-btn {
+    background: linear-gradient(135deg, var(--purple), var(--magenta));
+    color: #fff; border: none; padding: 10px 22px;
+    font-family: 'Orbitron', monospace; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: opacity 0.2s;
+  }
+  .edit-btn:hover { opacity: 0.85; }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box-val {
+    font-family: 'Orbitron', monospace; font-weight: 700;
+    font-size: 1.5rem; color: var(--purple-bright); margin-bottom: 4px;
+  }
+  .stat-box-label {
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted);
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 24px;
+  }
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 28px;
+  }
+  .panel-title {
+    font-family: 'Orbitron', monospace; font-size: 0.85rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text);
+    margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .panel-title svg { width: 16px; height: 16px; color: var(--purple-bright); flex-shrink: 0; }
+  .info-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row svg { width: 18px; height: 18px; color: var(--purple-bright); flex-shrink: 0; }
+  .info-text { display: flex; flex-direction: column; gap: 2px; }
+  .info-label {
+    font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
+  }
+  .info-value { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.02em; }
+  .game-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .game-row:last-child { border-bottom: none; }
+  .game-name { font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .game-rank-pill {
+    font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border: 1px solid var(--border); color: var(--cyan); font-weight: 600;
+  }
+  .badges-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .ach-badge {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    width: 72px;
+  }
+  .ach-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(224,64,251,0.15));
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .ach-label { font-size: 0.62rem; text-align: center; color: var(--text-muted); letter-spacing: 0.04em; }
+
+  /* Footer */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 40px 48px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+  .footer-brand { max-width: 280px; }
+  .footer-logo {
+    font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, var(--purple-bright), var(--magenta));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 10px;
+  }
+  .footer-tagline { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+  .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+  .footer-col-title {
+    font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text); font-weight: 700; margin-bottom: 14px;
+  }
+  .footer-col a {
+    display: block; font-size: 0.82rem; color: var(--text-muted);
+    text-decoration: none; margin-bottom: 10px; transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--purple-bright); }
+  .footer-bottom {
+    width: 100%;
+    border-top: 1px solid var(--border);
+    margin-top: 28px; padding-top: 18px;
+    font-size: 0.75rem; color: var(--text-muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .nav-menu-btn { display: flex; }
+    .hero-inner { flex-direction: column; gap: 48px; align-items: stretch; }
+    .login-card { flex: none; }
+    .games-bar { padding: 0 20px 60px; }
+    .hero-stats { gap: 20px; }
+    footer { padding: 32px 20px 24px; }
+    .footer-cols { gap: 32px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .details-grid { grid-template-columns: 1fr; }
+    .profile-card { flex-direction: column; text-align: center; }
+    .profile-id { text-align: center; }
+    .edit-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-dot"></span>
+  <span id="toast-msg"></span>
+</div>
+
+<nav>
+  <a href="#" onclick="showHome();return false;" class="nav-logo">TOURNYX</a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#" onclick="showHome();return false;" class="active" id="nav-home-link">Home</a></li>
+    <li><a href="#" onclick="showHome();document.getElementById('login-card').scrollIntoView({behavior:'smooth'});return false;" style="color:var(--purple-bright)">Elite</a></li>
+    <li><a href="#" onclick="showHome();setTimeout(()=>document.getElementById('games-bar-anchor').scrollIntoView({behavior:'smooth'}),50);return false;">Explore Games</a></li>
+    <li><a href="#" onclick="goProfileOrLogin();return false;" id="nav-profile-link">Profile</a></li>
+  </ul>
+  <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle menu" onclick="toggleMobileNav()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <button class="nav-cta" id="nav-cta-btn" onclick="document.getElementById('login-card').scrollIntoView({behavior:'smooth'})">Sign In</button>
+</nav>
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#" onclick="toggleMobileNav();showHome();return false;" id="nav-home-link-m" class="active">Home</a>
+  <a href="#" onclick="toggleMobileNav();showHome();document.getElementById('login-card').scrollIntoView({behavior:'smooth'});return false;">Elite / Sign In</a>
+  <a href="#" onclick="toggleMobileNav();showHome();setTimeout(()=>document.getElementById('games-bar-anchor').scrollIntoView({behavior:'smooth'}),50);return false;">Explore Games</a>
+  <a href="#" onclick="toggleMobileNav();goProfileOrLogin();return false;" id="nav-profile-link-m">Profile</a>
+</div>
+
+
+<div class="home-view" id="home-view">
+<section class="hero">
+  <div class="hero-inner">
+
+    <div class="hero-copy">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Live Tournaments Active
+      </div>
+      <h1 class="hero-title">COMPETE.<br><span>RISE.</span><br>DOMINATE.</h1>
+      <p class="hero-sub">The elite arena for Free Fire, BGMI, and CODM players. Join weekly leaderboards, earn rewards, and prove you belong at the top.</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-val">48K+</span><span class="stat-label">Players</span></div>
+        <div class="stat"><span class="stat-val">₹2.4L</span><span class="stat-label">Prize Pool</span></div>
+        <div class="stat"><span class="stat-val">312</span><span class="stat-label">Live Matches</span></div>
+      </div>
+      <div class="hero-badges">
+        <div class="badge"><span class="badge-dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></span>Free Fire</div>
+        <div class="badge"><span class="badge-dot" style="background:var(--cyan);box-shadow:0 0 6px var(--cyan)"></span>BGMI</div>
+        <div class="badge"><span class="badge-dot" style="background:var(--magenta);box-shadow:0 0 6px var(--magenta)"></span>CODM</div>
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card" id="login-card">
+      <div class="card-header">
+        <div class="card-logo">TOURNYX</div>
+        <div class="card-sub">Player Portal</div>
+      </div>
+
+      <div class="tab-row">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="tab" id="tab-signup" onclick="switchTab('signup')">Register</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="form-login" id="form-login">
+        <div class="field">
+          <label>Email Address</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" rx="2"/><path d="M4 8l8 5 8-5"/></svg>
+            <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+          </div>
+          <div class="err-msg" id="login-email-err">⚠ Email address cannot be empty.</div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div class="err-msg" id="login-password-err">⚠ Password must be at least 6 characters.</div>
+        </div>
+        <div class="field-row">
+          <label class="check-label"><input type="checkbox"> Remember me</label>
+          <a href="#" class="forgot">Forgot password?</a>
+        </div>
+        <button class="btn-login" onclick="handleLogin()">Enter Arena</button>
+        <div class="divider"><span>or continue with</span></div>
+        <div class="social-row">
+          <button class="social-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.114 18.102.132 18.115a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Discord
+          </button>
+          <button class="social-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+            Twitter
+          </button>
+        </div>
+        <div class="card-footer">New to Tournyx? <a href="#" onclick="switchTab('signup');return false;">Create account</a></div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div class="form-signup" id="form-signup">
+        <div class="field">
+          <label>Game Tag / Username</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="reg-tag" placeholder="YourGameTag#001">
+          </div>
+          <div class="err-msg" id="reg-tag-err">⚠ Game tag cannot be empty.</div>
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" rx="2"/><path d="M4 8l8 5 8-5"/></svg>
+            <input type="email" id="reg-email" placeholder="you@example.com">
+          </div>
+          <div class="err-msg" id="reg-email-err">⚠ Enter a valid email address.</div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="reg-password" placeholder="Min 6 characters">
+          </div>
+          <div class="err-msg" id="reg-password-err">⚠ Password must be at least 6 characters.</div>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="reg-confirm" placeholder="Re-enter password">
+          </div>
+          <div class="err-msg" id="reg-confirm-err">⚠ Passwords do not match.</div>
+        </div>
+        <button class="btn-login" onclick="handleRegister()">Join The Arena</button>
+        <div class="card-footer" style="margin-top:16px">Already have an account? <a href="#" onclick="switchTab('login');return false;">Sign in</a></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="games-bar" id="games-bar-anchor">
+  <div class="section-label">Supported Games</div>
+  <div class="games-strip">
+    <div class="game-pill active">🌐 Global</div>
+    <div class="game-pill">🔥 Free Fire</div>
+    <div class="game-pill">🎮 BGMI</div>
+    <div class="game-pill">💀 CODM</div>
+    <div class="game-pill">⚔️ Valorant</div>
+    <div class="game-pill">🏆 PUBG Mobile</div>
+    <div class="game-pill">🎯 Clash Squad</div>
+  </div>
+</div>
+</div><!-- /home-view -->
+
+<div class="profile-view" id="profile-view">
+  <div class="page">
+    <div class="page-eyebrow">Player Profile</div>
+    <h1 class="page-title">Your Arena Profile</h1>
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-card">
+      <div class="avatar" id="profile-avatar">RV</div>
+      <div class="profile-id">
+        <div class="profile-name" id="profile-name">Roshi Verma</div>
+        <div class="profile-tag">@ShadowStrikerRV</div>
+        <span class="profile-rank"><span class="dot"></span>Elite Tier — Rank #214</span>
+      </div>
+      <button class="edit-btn">Edit Profile</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-box-val">312</div>
+        <div class="stat-box-label">Matches Played</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val">68%</div>
+        <div class="stat-box-label">Win Rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val">1,847</div>
+        <div class="stat-box-label">Elite Points</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val">₹6,200</div>
+        <div class="stat-box-label">Winnings</div>
+      </div>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="details-grid">
+
+      <!-- LEFT: Account info + Games -->
+      <div style="display:flex; flex-direction:column; gap:24px;">
+
+        <div class="panel">
+          <div class="panel-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Account Details
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div class="info-text">
+              <span class="info-label">Full Name</span>
+              <span class="info-value" id="info-name">Roshi Verma</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" rx="2"/><path d="M4 8l8 5 8-5"/></svg>
+            <div class="info-text">
+              <span class="info-label">Email Address</span>
+              <span class="info-value" id="info-email">roshi.verma@tournyx.gg</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <div class="info-text">
+              <span class="info-label">Phone Number</span>
+              <span class="info-value">+91 98765 43210</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <div class="info-text">
+              <span class="info-label">Member Since</span>
+              <span class="info-value">March 2024</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Games Played
+          </div>
+          <div class="game-row">
+            <span class="game-name">🔥 Free Fire</span>
+            <span class="game-rank-pill">Heroic</span>
+          </div>
+          <div class="game-row">
+            <span class="game-name">🎮 BGMI</span>
+            <span class="game-rank-pill">Crown</span>
+          </div>
+          <div class="game-row">
+            <span class="game-name">💀 CODM</span>
+            <span class="game-rank-pill">Legendary</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Achievements -->
+      <div class="panel">
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10l-1 8a4 4 0 0 1-8 0L7 4z"/></svg>
+          Achievements
+        </div>
+        <div class="badges-strip">
+          <div class="ach-badge">
+            <div class="ach-icon">🏆</div>
+            <span class="ach-label">Champion x3</span>
+          </div>
+          <div class="ach-badge">
+            <div class="ach-icon">🎯</div>
+            <span class="ach-label">Sharpshooter</span>
+          </div>
+          <div class="ach-badge">
+            <div class="ach-icon">⚡</div>
+            <span class="ach-label">Fast Climber</span>
+          </div>
+          <div class="ach-badge">
+            <div class="ach-icon">🔥</div>
+            <span class="ach-label">10 Win Streak</span>
+          </div>
+          <div class="ach-badge">
+            <div class="ach-icon">🛡️</div>
+            <span class="ach-label">Top Defender</span>
+          </div>
+          <div class="ach-badge">
+            <div class="ach-icon">👑</div>
+            <span class="ach-label">Elite Tier</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /profile-view -->
+
+<footer>
+  <div class="footer-brand">
+    <div class="footer-logo">TOURNYX</div>
+    <p class="footer-tagline">The elite competitive arena for mobile esports. Climb the leaderboard, win real prizes, earn your rank.</p>
+  </div>
+  <div class="footer-cols">
+    <div class="footer-col">
+      <div class="footer-col-title">Platform</div>
+      <a href="#" onclick="showHome();return false;">Home</a>
+      <a href="#" onclick="showHome();setTimeout(()=>document.getElementById('games-bar-anchor').scrollIntoView({behavior:'smooth'}),50);return false;">Explore Games</a>
+      <a href="#" onclick="goProfileOrLogin();return false;">Profile</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Support</div>
+      <a href="#">Help Center</a>
+      <a href="#">Rules &amp; Fair Play</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Legal</div>
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tournyx. All rights reserved.</span>
+    <span>Built for the next generation of mobile esports.</span>
+  </div>
+</footer>
+
+<script>
+  /* ── Mobile nav toggle ── */
+  function toggleMobileNav() {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  }
+
+  /* ── Home / Profile view switching (single-page, no reload) ── */
+  let isLoggedIn = false;
+
+  function showProfile(email, tag) {
+    document.getElementById('home-view').classList.add('hidden');
+    document.getElementById('profile-view').classList.add('active');
+    isLoggedIn = true;
+
+    // Reflect submitted login/register info in the profile, if provided
+    if (email) {
+      document.getElementById('info-email').textContent = email;
+    }
+    if (tag) {
+      document.getElementById('profile-name').textContent = tag;
+      document.getElementById('info-name').textContent = tag;
+      const initials = tag.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'RV';
+      document.getElementById('profile-avatar').textContent = initials;
+    }
+
+    // Update nav active states + CTA button
+    document.getElementById('nav-home-link').classList.remove('active');
+    document.getElementById('nav-home-link-m').classList.remove('active');
+    document.getElementById('nav-profile-link').classList.add('active');
+    document.getElementById('nav-profile-link-m').classList.add('active');
+    const cta = document.getElementById('nav-cta-btn');
+    cta.textContent = 'Sign Out';
+    cta.onclick = () => showHome(true);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showHome(signOut) {
+    document.getElementById('home-view').classList.remove('hidden');
+    document.getElementById('profile-view').classList.remove('active');
+
+    document.getElementById('nav-home-link').classList.add('active');
+    document.getElementById('nav-home-link-m').classList.add('active');
+    document.getElementById('nav-profile-link').classList.remove('active');
+    document.getElementById('nav-profile-link-m').classList.remove('active');
+
+    if (signOut) {
+      isLoggedIn = false;
+      const cta = document.getElementById('nav-cta-btn');
+      cta.textContent = 'Sign In';
+      cta.onclick = () => document.getElementById('login-card').scrollIntoView({behavior:'smooth'});
+      showToast('Signed out successfully.', 'success');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goProfileOrLogin() {
+    if (isLoggedIn) {
+      showProfile();
+    } else {
+      showHome();
+      document.getElementById('login-card').scrollIntoView({behavior:'smooth'});
+      showToast('Sign in first to view your profile.', 'fail');
+    }
+  }
+
+  /* ── Tab toggle ── */
+  function switchTab(mode) {
+    const loginForm  = document.getElementById('form-login');
+    const signupForm = document.getElementById('form-signup');
+    const tabLogin   = document.getElementById('tab-login');
+    const tabSignup  = document.getElementById('tab-signup');
+    if (mode === 'login') {
+      loginForm.style.display  = 'block';
+      signupForm.style.display = 'none';
+      tabLogin.classList.add('active');
+      tabSignup.classList.remove('active');
+    } else {
+      loginForm.style.display  = 'none';
+      signupForm.style.display = 'block';
+      tabLogin.classList.remove('active');
+      tabSignup.classList.add('active');
+    }
+  }
+
+  /* ── Helpers ── */
+  function showErr(inputId, errId, show) {
+    const inp = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    inp.classList.toggle('error', show);
+    err.classList.toggle('show', show);
+  }
+
+  function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.className = 'toast ' + type;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  /* ── Login validation ── */
+  function handleLogin() {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    let valid = true;
+
+    if (!email) {
+      showErr('login-email', 'login-email-err', true); valid = false;
+    } else if (!isValidEmail(email)) {
+      document.getElementById('login-email-err').textContent = '⚠ Enter a valid email address.';
+      showErr('login-email', 'login-email-err', true); valid = false;
+    } else {
+      document.getElementById('login-email-err').textContent = '⚠ Email address cannot be empty.';
+      showErr('login-email', 'login-email-err', false);
+    }
+
+    if (password.length < 6) {
+      showErr('login-password', 'login-password-err', true); valid = false;
+    } else {
+      showErr('login-password', 'login-password-err', false);
+    }
+
+    if (valid) {
+      showToast('Welcome back, Elite! Entering arena…', 'success');
+      setTimeout(() => { showProfile(email); }, 1100);
+    } else {
+      showToast('Fix the errors above to continue.', 'fail');
+    }
+  }
+
+  /* ── Register validation ── */
+  function handleRegister() {
+    const tag      = document.getElementById('reg-tag').value.trim();
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm  = document.getElementById('reg-confirm').value;
+    let valid = true;
+
+    showErr('reg-tag',      'reg-tag-err',      !tag);      if (!tag) valid = false;
+    const badEmail = !email || !isValidEmail(email);
+    showErr('reg-email',    'reg-email-err',    badEmail);  if (badEmail) valid = false;
+    showErr('reg-password', 'reg-password-err', password.length < 6); if (password.length < 6) valid = false;
+    const mismatch = !confirm || password !== confirm;
+    showErr('reg-confirm',  'reg-confirm-err',  mismatch);  if (mismatch) valid = false;
+
+    if (valid) {
+      showToast('Account created! Entering the arena…', 'success');
+      setTimeout(() => { showProfile(email, tag); }, 1100);
+    } else {
+      showToast('Fix the errors above to continue.', 'fail');
+    }
+  }
+
+  /* ── Game pills ── */
+  document.querySelectorAll('.game-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.game-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  /* ── Clear error on input ── */
+  ['login-email','login-password'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      document.getElementById(id).classList.remove('error');
+      document.getElementById(id + '-err').classList.remove('show');
+    });
+  });
+</script>
+</body>
+</html>
